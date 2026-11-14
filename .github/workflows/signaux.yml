@@ -1,0 +1,21 @@
+name: Signaux quotidiens
+
+on:
+  schedule:
+    - cron: "0 23 * * 1-5"   # 23h00 UTC, du lundi au vendredi
+  workflow_dispatch:          # permet aussi de le lancer à la main
+
+jobs:
+  signaux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-signaux.txt
+      - name: Calcul des signaux et envoi Telegram
+        run: python signaux.py --instruments EURUSD,GBPUSD --capital 50 --risk 0.02 --telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
